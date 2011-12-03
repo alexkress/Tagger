@@ -39,7 +39,6 @@ class SMS:
     @classmethod
     def mark_as_used(cls, msg):
         if not cls.is_used(msg):
-            print msg.sid+"is now used"
             cls.used_messages.append(msg.sid)
 
     @classmethod
@@ -59,9 +58,11 @@ class SMS:
 
         return msg.status == "sent" or msg.status == "queued"
 
-    def receive(self):
+    def receive(self, limit=None):
         """ List of not yet seen responses """
         all_messages=self.client.sms.messages.list()
+
+        count_received=0
 
         to_return=[]
         #go through all the messages
@@ -70,5 +71,9 @@ class SMS:
             if msg.status == "received" and (not SMS.is_used(msg)):
                 to_return.append(SMS.FriendlySMSFacade(msg))
                 SMS.mark_as_used(msg)
+                count_received=count_received+1
+
+                if (not limit==None) and count_received>=limit:
+                    break
 
         return to_return
