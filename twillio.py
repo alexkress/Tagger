@@ -9,7 +9,7 @@ from twilio.rest import TwilioRestClient
 from Tools.sms import SMS
 
 sms=SMS()
-print sms.send("hello", "+14165431525")
+#print sms.send("hello", "")
 
 msgs=sms.receive()
 
