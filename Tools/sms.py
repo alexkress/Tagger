@@ -1,4 +1,5 @@
 from twilio.rest import TwilioRestClient
+import shelve
 
 class SMS:
 
@@ -18,7 +19,12 @@ class SMS:
         token = "d83d9fb72dd8a2fbe04c112ec6fe2577"
         self.client = TwilioRestClient(account, token)
 
+    def __del__(self):
+        pass
+
     used_messages=[]
+
+    shelf=None
 
     @classmethod
     def is_used(cls, msg):
@@ -36,7 +42,9 @@ class SMS:
         msg = self.client.sms.messages.create(to=number, from_="+14155992671",
                 body=message+"\n to reply type 5370-3238 before your message")
 
-        return msg.status == "sent" or msg.status == "pending"
+        print msg.status
+
+        return msg.status == "sent" or msg.status == "queued"
 
     def receive(self):
         """ List of not yet seen responses """
