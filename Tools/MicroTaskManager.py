@@ -1,4 +1,5 @@
 from sms import SMS
+from evaluation import evaluation
 import sys
 import os
 import time
@@ -33,8 +34,8 @@ for line in lines:
     workerName  = elements[1] 
     workerPhone = elements[2]
  
-    IdName_Dict[workerId] = workerName
-    IdPhone_Dict[workerId] = workerPhone
+    IdName_Dict[workerId] = workerName.strip()
+    IdPhone_Dict[workerId] = workerPhone.strip()
     IdStatus_Dict[workerId] = 'Idle' 
     IdSentDone_Dict[workerId] = list() 
 
@@ -62,7 +63,7 @@ for line in lines:
         continue
 
     sentenceId    = int(elements[0])
-    sentenceText  = elements[1] 
+    sentenceText  = elements[1].strip()
  
     IdSentence_Dict[sentenceId] = sentenceText
     IdSentCount_Dict[sentenceId] = 0
@@ -81,7 +82,12 @@ def find_key(dic, val):
             return k
     return -1;
 
-
+#Retrieve Idle Worker
+def GetWorkerFromPhone(phoneNmb):
+    idleWorkerId = -1
+    idleWorkerId = find_key(IdPhone_Dict, phoneNmb);
+ 
+    return idleWorkerId
 
 #Retrieve Idle Worker
 def GetIdleWorker():
@@ -104,10 +110,21 @@ PendingWork_Dict = dict()
 
 #Retrieve Idle Worker
 def AttributeSentenceToWorker(sentenceId,workerId):
+    #Specify the current sentence a worker is working on
     PendingWork_Dict[workerId] = sentenceId
+    #Set the status of worker as occupied
     IdStatus_Dict[workerId] = 'Working'
+    #Count number of time each sentence was sent to a worker
     IdSentCount_Dict[sentenceId] += 1
+    #Make sure Worker do not received same sentence twice
+    IdSentDone_Dict[workerId].append(sentenceId)
     print "Attributed: " + str(sentenceId) + " to " + IdName_Dict[workerId]
+
+def AcknowledgeSentenceTagged(workerId, isOk):
+    del PendingWork_Dict[workerId]
+    IdStatus_Dict[workerId] = 'Idle'
+    if(isOk):
+        print 'Sentence Successfully tagged'
 
 while(True):
     time.sleep(1)
@@ -123,8 +140,35 @@ while(True):
             else:
                 print 'Unable to send Msg to: ' + IdName_Dict[workerId]
     # Get Received SMS and attribute if correctly answered
-    receivedMsg = ReceiveSMS()
+    receivedMsg = sms.receive(1)
     
+    for msg in receivedMsg:
+        sourcePhone = msg.get_source().strip()
+        msgBody = msg.get_body().strip()
+        print "Received " + msg.get_body() + " from " + msg.get_source()
+        
+        #Check which person has send this message...
+        workerId = GetWorkerFromPhone(sourcePhone)
+        if(workerId == -1):
+            print 'Unknown phone source... ' + sourcePhone 
+            continue
+        
+        if workerId not in PendingWork_Dict:
+            print "Worker not assigned any Data"
+            continue
+
+        originalSentId = PendingWork_Dict[workerId]
+        
+        if(evaluation( IdSentence_Dict[originalSentId], msgBody) ):
+            AcknowledgeSentenceTagged(workerId,True)
+            #Push Results to DataBase
+            #Free Worker for further work
+        else:
+            AcknowledgeSentenceTagged(workerId,False)
+            print 'Worker did not tagged the sentence properly'
+            print  IdSentence_Dict[originalSentId] + " -> " + msgBody
+            
+
     #for msg in receivedMsg:
     #    print msg
 
