@@ -14,17 +14,23 @@ class SMS:
         def get_source(self):
             return self.from_
 
-    def __init__(self):
-        account = "ACf3a4c18fb6b24d01a99aa2770c187900"
-        token = "d83d9fb72dd8a2fbe04c112ec6fe2577"
-        self.client = TwilioRestClient(account, token)
-
-    def __del__(self):
-        pass
+    SHELF_FILE_NAME="used_messages.saved"
+    SHELF_STORAGE_KEY="used_messages"
 
     used_messages=[]
 
     shelf=None
+
+    def __init__(self):
+        account = "ACf3a4c18fb6b24d01a99aa2770c187900"
+        token = "d83d9fb72dd8a2fbe04c112ec6fe2577"
+        self.client = TwilioRestClient(account, token)
+        self.load_used()
+
+    def __del__(self):
+        self.shelf[self.SHELF_STORAGE_KEY]=self.used_messages
+        self.shelf.sync()
+        print self.shelf
 
     @classmethod
     def is_used(cls, msg):
@@ -35,6 +41,13 @@ class SMS:
         if not cls.is_used(msg):
             print msg.sid+"is now used"
             cls.used_messages.append(msg.sid)
+
+    @classmethod
+    def load_used(cls):
+        if cls.shelf==None:
+            cls.shelf = shelve.open(cls.SHELF_FILE_NAME)
+            if cls.shelf.has_key(cls.SHELF_STORAGE_KEY):
+                cls.used_messages=cls.shelf[cls.SHELF_STORAGE_KEY]
             
 
     def send(self, message, number):
@@ -51,7 +64,6 @@ class SMS:
         all_messages=self.client.sms.messages.list()
 
         to_return=[]
-
         #go through all the messages
         for msg in all_messages:
 
