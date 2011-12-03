@@ -1,6 +1,9 @@
+from sms import SMS
 import sys
 import os
+import time
 
+sms = SMS()
 workerFile = '../Data/workerList.txt'
 sentenceFile = '../Data/sentenceList.txt'
 
@@ -107,17 +110,18 @@ def AttributeSentenceToWorker(sentenceId,workerId):
     print "Attributed: " + str(sentenceId) + " to " + IdName_Dict[workerId]
 
 while(True):
+    time.sleep(1)
     # Attribute Sentence to Tag to Idle Workers
     workerId = GetIdleWorker()
     if(workerId != -1):
         #Give work to this worker...
         sentenceId = GetNewSentenceToTag(workerId)
         if(sentenceId != -1):
-            if(SendSMS(IdPhone_Dict[workerId], 
-                       IdSentence_Dict[sentenceId]) ):
+            if(sms.send(IdSentence_Dict[sentenceId], IdPhone_Dict[workerId]) ):
                 #Successfully Send SMS, Add Sentece/Worker to waiting queue.
                 AttributeSentenceToWorker(sentenceId,workerId)
-
+            else:
+                print 'Unable to send Msg to: ' + IdName_Dict[workerId]
     # Get Received SMS and attribute if correctly answered
     receivedMsg = ReceiveSMS()
     
