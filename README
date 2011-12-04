@@ -1,0 +1,24 @@
+Tagger is a project developed during Montreal Random Hacks of Kindness
+
+The purpose is to be able to construct a corpora for an underdeveloped or rare languages.
+The program uses two lists sentenceList.txt and workerList.txt
+sentenceList.txt contains a list of sentences to tag
+workerList.txt contains a list of people and phone numbers that participate in the project
+
+The algorithm works as follows:
+One sentence is sent out to every person on the list
+When a response comes back from a person, it is recorded and the next sentence is sent out to this person
+
+Configuration:
+The system currently uses https://www.twilio.com to sent sms. To use you need to create an account and
+then fill account and token fields in sms.py. If you are registered for a free account every number entered in workerList.txt
+needs to be first authorized by twilio
+
+Usage:
+start the program by running 'python MicroTaskManager.py -s "Yes"' the parameter is used to indicate whether
+the system will be sending out sms, without the parameter the system will ran in "test" mode where
+it will be able to receive responses and simulate sending
+
+Other files:
+used_messages.saved.db contains a list of sms already read by the application
+responseList.txt collect the responses received by the application, can be used to construct the corpora
