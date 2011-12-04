@@ -168,12 +168,12 @@ def ProcessReceivedMessages(workUnitToProcess, quiet=False):
         workerId = GetWorkerFromPhone(sourcePhone)
         if(workerId == -1):
             if not quiet:
-                print 'Unknown phone source... ' + sourcePhone
+                TextualUI.ShowErrorMessage('Unknown phone source... ' + sourcePhone)
             continue
         
         if workerId not in PendingWork_Dict:
             if not quiet:
-                print "Error: Received answer from Worker not active"
+                TextualUI.ShowErrorMessage("Error: Received answer from Worker not active")
             continue
 
         worker_name=IdName_Dict[workerId]
@@ -193,19 +193,19 @@ def ProcessReceivedMessages(workUnitToProcess, quiet=False):
                 TextualUI.ShowProcessedResult(msg, worker_name, original_sentence, True)
             #Push Results to DataBase
             #Free Worker for further work
-        '''
-        Ev = Evaluator()
-        if(Ev.evaluation( original_sentence, msgBody) ):
-            AcknowledgeSentenceTagged(workerId,True)
+        
+        #Ev = Evaluator()
+        #if(Ev.evaluation( original_sentence, msgBody) ):
+        #    AcknowledgeSentenceTagged(workerId,True)
 
-            if not quiet:
-                TextualUI.ShowProcessedResult(msg, worker_name, original_sentence, True)
+        #    if not quiet:
+        #        TextualUI.ShowProcessedResult(msg, worker_name, original_sentence, True)
 
             #Push Results to DataBase
-            Ev.push(responseFile, originalSentId, workerId)
+        #    Ev.push(responseFile, originalSentId, workerId)
             
             #Free Worker for further work
-        '''
+        
         else:
             AcknowledgeSentenceTagged(workerId,False)
             if not quiet:
@@ -234,8 +234,7 @@ if __name__=="__main__":
         
     fake_message_sending = (False if options.send=="Yes" else True)
 
-    #S = Stats()
-    #S.format(sentenceFile, sentenceFile)
+
 
     #How many SMS we want to send each time...
     workUnitsToCreate = 2
@@ -252,6 +251,9 @@ if __name__=="__main__":
 
         # Get Received SMS and attribute if correctly answered
         ProcessReceivedMessages(workUnitsToProcess)
+
+        #S = Stats()
+        #S.format(sentenceFile, sentenceFile)
 
 
 
