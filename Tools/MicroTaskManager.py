@@ -185,7 +185,7 @@ def ProcessReceivedMessages(workUnitToProcess, quiet=False):
         originalSentId = PendingWork_Dict[workerId]
         original_sentence=IdSentence_Dict[originalSentId]
 
-        '''
+        
         if(evaluation( original_sentence, msgBody) ):
             AcknowledgeSentenceTagged(workerId,True)
 
@@ -205,7 +205,7 @@ def ProcessReceivedMessages(workUnitToProcess, quiet=False):
             Ev.push(responseFile, originalSentId, workerId)
             
             #Free Worker for further work
-                
+        '''
         else:
             AcknowledgeSentenceTagged(workerId,False)
             if not quiet:
@@ -234,8 +234,8 @@ if __name__=="__main__":
         
     fake_message_sending = (False if options.send=="Yes" else True)
 
-    S = Stats()
-    S.format(sentenceFile, sentenceFile)
+    #S = Stats()
+    #S.format(sentenceFile, sentenceFile)
 
     #How many SMS we want to send each time...
     workUnitsToCreate = 2
