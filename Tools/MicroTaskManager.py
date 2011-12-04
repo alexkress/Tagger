@@ -214,7 +214,7 @@ def ProcessReceivedMessages(workUnitToProcess, quiet=False):
             
 
 S = Stats()
-St.format(sentenceFile, sentenceFile) 
+S.format(sentenceFile, responseFile) 
 
 #data per word is held in S.data 
 
