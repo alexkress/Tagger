@@ -144,14 +144,14 @@ def SendWorkUnits(workCount):
             break
         
         #Try Sending SMS to worker
-        if(True): #sms.send(IdSentence_Dict[sentenceId], IdPhone_Dict[workerId]) ):
+        if(True):#sms.send(IdSentence_Dict[sentenceId], IdPhone_Dict[workerId]) ):
             #Successfully Send SMS, Add Sentece/Worker to waiting queue.
             AttributeSentenceToWorker(sentenceId,workerId)
         else:
             print 'Unable to send Msg to: ' + IdName_Dict[workerId]        
             
 
-def ProcessReceivedMessages(workUnitToProcess):
+def ProcessReceivedMessages(workUnitToProcess, quiet=False):
     #Contact Server to receive SMS
     receivedMsg = sms.receive(workUnitToProcess)
     
@@ -163,17 +163,19 @@ def ProcessReceivedMessages(workUnitToProcess):
         #Check which person has send this message...
         workerId = GetWorkerFromPhone(sourcePhone)
         if(workerId == -1):
-            print 'Unknown phone source... ' + sourcePhone 
+            if not quiet:
+                print 'Unknown phone source... ' + sourcePhone
             continue
         
         if workerId not in PendingWork_Dict:
-            print "Error: Received answer from Worker not active"
+            if not quiet:
+                print "Error: Received answer from Worker not active"
             continue
 
         worker_name=IdName_Dict[workerId]
 
-
-        TextualUI.ShowIncomingMessage(msg,worker_name)
+        if not quiet:
+            TextualUI.ShowIncomingMessage(msg,worker_name)
         #print "Received " + msg.get_body() + " from " + IdName_Dict[workerId]
 
         originalSentId = PendingWork_Dict[workerId]
@@ -182,12 +184,14 @@ def ProcessReceivedMessages(workUnitToProcess):
         if(evaluation( original_sentence, msgBody) ):
             AcknowledgeSentenceTagged(workerId,True)
 
-            TextualUI.ShowProcessedResult(msg, worker_name, original_sentence, True)
+            if not quiet:
+                TextualUI.ShowProcessedResult(msg, worker_name, original_sentence, True)
             #Push Results to DataBase
             #Free Worker for further work
         else:
             AcknowledgeSentenceTagged(workerId,False)
-            TextualUI.ShowProcessedResult(msg, worker_name, original_sentence, False)
+            if not quiet:
+                TextualUI.ShowProcessedResult(msg, worker_name, original_sentence, False)
 
 
             #print 'Worker did not tagged the sentence properly'
@@ -202,6 +206,8 @@ workUnitsToCreate = 2
 workUnitsToProcess = 2
 
 TextualUI.StartUI()
+
+ProcessReceivedMessages(10000, True)
 
 while(True):
     time.sleep(1)
