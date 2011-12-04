@@ -48,6 +48,9 @@ class SMS:
     def mark_as_used(cls, msg):
         if not cls.is_used(msg):
             cls.used_messages.append(msg.sid)
+            cls.shelf[cls.SHELF_STORAGE_KEY]=cls.used_messages
+            cls.shelf.sync()
+            #print str(len(cls.used_messages)) + "--- marked used"
 
     @classmethod
     def load_used(cls):
@@ -55,12 +58,13 @@ class SMS:
             cls.shelf = shelve.open(cls.SHELF_FILE_NAME)
             if cls.shelf.has_key(cls.SHELF_STORAGE_KEY):
                 cls.used_messages=cls.shelf[cls.SHELF_STORAGE_KEY]
+                print "Loaded "+str(len(cls.used_messages))+" stored messages in"
             
 
     def send(self, message, number):
         """ true if sending is successful"""
         msg = self.client.sms.messages.create(to=number, from_="+14155992671",
-                body=message+"\n to reply type 5370-3238 before your message")
+                body="Please tag:\n "+message+"\n to reply type 5370-3238 before your message")
 
         return msg.status == "sent" or msg.status == "queued"
 
@@ -68,7 +72,7 @@ class SMS:
         """ List of not yet seen responses """
         all_messages=self.client.sms.messages.list()
 
-        print "Got "+str(len(all_messages))+" messages from server"
+        #print "Got "+str(len(all_messages))+" messages from server"
 
         count_received=0
 
