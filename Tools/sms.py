@@ -66,7 +66,7 @@ class SMS:
         """ true if sending is successful"""
         try:
             msg = self.client.sms.messages.create(to=number, from_="+14155992671",
-                body="Please tag:\n "+message+"\n to reply type 5370-3238 before your message")
+                body="Please tag:\n "+message+"\n to reply type 5370-3238 before your message \n valid symbols n pn aj v av pr c in")
         except twilio.TwilioRestException:
             print "OOPS: "+number+" is not registered"
             return False
