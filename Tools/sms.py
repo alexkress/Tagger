@@ -7,12 +7,19 @@ class SMS:
         def __init__(self, sms):
             self.body=sms.body
             self.from_=sms.from_
+            self.date_sent=sms.date_sent
 
         def get_body(self):
             return self.body
 
         def get_source(self):
             return self.from_
+
+        def get_date_sent(self):
+            return self.date_sent
+
+        def __str__(self):
+            return self.get_body()+" "+self.get_source()+" "+self.get_date_sent()
 
     SHELF_FILE_NAME="used_messages.saved"
     SHELF_STORAGE_KEY="used_messages"
@@ -26,6 +33,7 @@ class SMS:
         token = "d83d9fb72dd8a2fbe04c112ec6fe2577"
         self.client = TwilioRestClient(account, token)
         self.load_used()
+        print "sms init"
 
     def __del__(self):
         self.shelf[self.SHELF_STORAGE_KEY]=self.used_messages
@@ -54,13 +62,13 @@ class SMS:
         msg = self.client.sms.messages.create(to=number, from_="+14155992671",
                 body=message+"\n to reply type 5370-3238 before your message")
 
-        print msg.status
-
         return msg.status == "sent" or msg.status == "queued"
 
     def receive(self, limit=None):
         """ List of not yet seen responses """
         all_messages=self.client.sms.messages.list()
+
+        print "Got "+str(len(all_messages))+" messages from server"
 
         count_received=0
 
@@ -72,6 +80,7 @@ class SMS:
                 to_return.append(SMS.FriendlySMSFacade(msg))
                 SMS.mark_as_used(msg)
                 count_received=count_received+1
+                print "Found un processed incoming message"
 
                 if (not limit==None) and count_received>=limit:
                     break
