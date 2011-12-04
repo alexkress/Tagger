@@ -4,10 +4,13 @@ import sys
 import os
 import time
 from textualui import TextualUI
+import optparse
 
 sms = SMS()
 workerFile = '../Data/workerList.txt'
 sentenceFile = '../Data/sentenceList.txt'
+
+fake_message_sending=True
 
 #Information used for the demo stored in dictionnaries
 #Once we have a database, all this informaton will be obtained/stored
@@ -144,7 +147,7 @@ def SendWorkUnits(workCount):
             break
         
         #Try Sending SMS to worker
-        if(True):#sms.send(IdSentence_Dict[sentenceId], IdPhone_Dict[workerId]) ):
+        if(fake_message_sending or sms.send(IdSentence_Dict[sentenceId], IdPhone_Dict[workerId]) ):
             #Successfully Send SMS, Add Sentece/Worker to waiting queue.
             AttributeSentenceToWorker(sentenceId,workerId)
         else:
@@ -201,21 +204,35 @@ def ProcessReceivedMessages(workUnitToProcess, quiet=False):
 
 ### Main Loop ###
 
-#How many SMS we want to send each time...
-workUnitsToCreate = 2
-workUnitsToProcess = 2
 
-TextualUI.StartUI()
+if __name__=="__main__":
+    parser = optparse.OptionParser("usage: %prog arg")
+    parser.add_option("-s", "--send", dest="send",
+                default="No", type="string",
+                help="specify whether to send out messages")
 
-ProcessReceivedMessages(10000, True)
+    (options, args) = parser.parse_args()
 
-while(True):
-    time.sleep(1)
-    # Attribute Sentence to Tag to Idle Workers
-    SendWorkUnits(workUnitsToCreate)
-    
-    # Get Received SMS and attribute if correctly answered
-    ProcessReceivedMessages(workUnitsToProcess)
+    if len(args) > 1:
+        parser.error("incorrect number of arguments")
+        
+    fake_message_sending = (False if options.send=="Yes" else True)
+
+    #How many SMS we want to send each time...
+    workUnitsToCreate = 2
+    workUnitsToProcess = 2
+
+    TextualUI.StartUI()
+
+    ProcessReceivedMessages(10000, True)
+
+    while(True):
+        time.sleep(1)
+        # Attribute Sentence to Tag to Idle Workers
+        SendWorkUnits(workUnitsToCreate)
+
+        # Get Received SMS and attribute if correctly answered
+        ProcessReceivedMessages(workUnitsToProcess)
 
 
 
