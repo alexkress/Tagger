@@ -1,4 +1,5 @@
 class Data:
+    """To be eventually used for integrating with the backend"""
 
     @classmethod
     def reserve_worker(cls):
