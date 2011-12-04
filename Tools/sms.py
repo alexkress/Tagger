@@ -3,6 +3,7 @@ import shelve
 import twilio
 
 class SMS:
+    """Used to send and receive SMS"""
 
     class FriendlySMSFacade:
         def __init__(self, sms):
@@ -30,6 +31,7 @@ class SMS:
     shelf=None
 
     def __init__(self):
+        #enter you https://www.twilio.com token here
         account = "ACf3a4c18fb6b24d01a99aa2770c187900"
         token = "d83d9fb72dd8a2fbe04c112ec6fe2577"
         self.client = TwilioRestClient(account, token)

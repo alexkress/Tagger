@@ -8,6 +8,7 @@ from time import gmtime, strftime
 strSpace = 5 *" "
 
 class TextualUI:
+    """Used to aggregate all output methods in one file"""
 
     @staticmethod
     def GetTimeStamp():

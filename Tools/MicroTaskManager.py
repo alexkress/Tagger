@@ -185,7 +185,7 @@ def ProcessReceivedMessages(workUnitToProcess, quiet=False):
         originalSentId = PendingWork_Dict[workerId]
         original_sentence=IdSentence_Dict[originalSentId]
 
-        
+        #old way of doing evaluation
         #if(evaluation( original_sentence, msgBody) ):
         #    AcknowledgeSentenceTagged(workerId,True)
 
@@ -193,7 +193,8 @@ def ProcessReceivedMessages(workUnitToProcess, quiet=False):
         #        TextualUI.ShowProcessedResult(msg, worker_name, original_sentence, True)
             #Push Results to DataBase
             #Free Worker for further work
-        
+
+        #new way of doing evaluation
         Ev = Evaluator()
         if(Ev.evaluation( original_sentence, msgBody) ):
             AcknowledgeSentenceTagged(workerId,True)
@@ -252,6 +253,8 @@ if __name__=="__main__":
         # Get Received SMS and attribute if correctly answered
         ProcessReceivedMessages(workUnitsToProcess)
 
+        #commented out since these currently end up causing a crash
+        #once fixed this code will collect stats
         #S = Stats()
         #S.format(sentenceFile, sentenceFile)
 
