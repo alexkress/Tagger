@@ -1,5 +1,6 @@
 from twilio.rest import TwilioRestClient
 import shelve
+import twilio
 
 class SMS:
 
@@ -33,12 +34,12 @@ class SMS:
         token = "d83d9fb72dd8a2fbe04c112ec6fe2577"
         self.client = TwilioRestClient(account, token)
         self.load_used()
-        print "sms init"
+        #print "sms init"
 
     def __del__(self):
         self.shelf[self.SHELF_STORAGE_KEY]=self.used_messages
         self.shelf.sync()
-        print self.shelf
+        #print self.shelf
 
     @classmethod
     def is_used(cls, msg):
@@ -58,13 +59,17 @@ class SMS:
             cls.shelf = shelve.open(cls.SHELF_FILE_NAME)
             if cls.shelf.has_key(cls.SHELF_STORAGE_KEY):
                 cls.used_messages=cls.shelf[cls.SHELF_STORAGE_KEY]
-                print "Loaded "+str(len(cls.used_messages))+" stored messages in"
+                print "Loaded "+str(len(cls.used_messages))+" stored messages"
             
 
     def send(self, message, number):
         """ true if sending is successful"""
-        msg = self.client.sms.messages.create(to=number, from_="+14155992671",
+        try:
+            msg = self.client.sms.messages.create(to=number, from_="+14155992671",
                 body="Please tag:\n "+message+"\n to reply type 5370-3238 before your message")
+        except twilio.TwilioRestException:
+            print "OOPS: "+number+" is not registered"
+            return False
 
         return msg.status == "sent" or msg.status == "queued"
 
@@ -84,7 +89,7 @@ class SMS:
                 to_return.append(SMS.FriendlySMSFacade(msg))
                 SMS.mark_as_used(msg)
                 count_received=count_received+1
-                print "Found un processed incoming message"
+                #print "Found un processed incoming message"
 
                 if (not limit==None) and count_received>=limit:
                     break
