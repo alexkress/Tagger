@@ -2,4 +2,7 @@
 2 @, The earliest known documents written in Swahili are letters written in Kilwa in 1711, in the Arabic alphabet.
 3 @, They were sent to the Portuguese of Mozambique and their local allies.
 4 @, The original letters are now preserved in the Historical Archives of Goa, India.
-5 @, Kiswahili is the Swahili word for the Swahili language, and this is also sometimes used in English.
+5 @, Kiswahili is the Swahili word for the Swahili language.
+6 @, Standard Swahili has five vowel phonemes
+7 @, One key step in spreading Swahili was to create a standard written language.
+8 @, Modern standard Swahili is based on Kiunguja, the dialect spoken in Zanzibar town. 

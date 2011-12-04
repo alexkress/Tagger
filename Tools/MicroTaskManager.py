@@ -155,7 +155,8 @@ def ProcessReceivedMessages(workUnitToProcess):
     for msg in receivedMsg:
         sourcePhone = msg.get_source().strip()
         msgBody = msg.get_body().strip()
-        
+        #msgDate = msg.get_date_sent()
+
         #Check which person has send this message...
         workerId = GetWorkerFromPhone(sourcePhone)
         if(workerId == -1):
