@@ -1,5 +1,5 @@
 from sms import SMS
-from evaluation import evaluation
+from evaluation import evaluation, Evaluator, Stats
 import sys
 import os
 import time
@@ -8,6 +8,7 @@ from textualui import TextualUI
 sms = SMS()
 workerFile = '../Data/workerList.txt'
 sentenceFile = '../Data/sentenceList.txt'
+responseFile = '../Data/responseList.txt'
 
 #Information used for the demo stored in dictionnaries
 #Once we have a database, all this informaton will be obtained/stored
@@ -180,7 +181,8 @@ def ProcessReceivedMessages(workUnitToProcess, quiet=False):
 
         originalSentId = PendingWork_Dict[workerId]
         original_sentence=IdSentence_Dict[originalSentId]
-        
+
+        '''
         if(evaluation( original_sentence, msgBody) ):
             AcknowledgeSentenceTagged(workerId,True)
 
@@ -188,6 +190,19 @@ def ProcessReceivedMessages(workUnitToProcess, quiet=False):
                 TextualUI.ShowProcessedResult(msg, worker_name, original_sentence, True)
             #Push Results to DataBase
             #Free Worker for further work
+        '''
+        Ev = Evaluator()
+        if(Ev.evaluation( original_sentence, msgBody) ):
+            AcknowledgeSentenceTagged(workerId,True)
+
+            if not quiet:
+                TextualUI.ShowProcessedResult(msg, worker_name, original_sentence, True)
+
+            #Push Results to DataBase
+            Ev.push(responseFile, originalSentId, workerId)
+            
+            #Free Worker for further work
+                
         else:
             AcknowledgeSentenceTagged(workerId,False)
             if not quiet:
@@ -198,6 +213,10 @@ def ProcessReceivedMessages(workUnitToProcess, quiet=False):
             #print  IdSentence_Dict[originalSentId] + " -> " + msgBody
             
 
+S = Stats()
+St.format(sentenceFile, sentenceFile) 
+
+#data per word is held in S.data 
 
 ### Main Loop ###
 
