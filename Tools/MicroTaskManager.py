@@ -3,6 +3,7 @@ from evaluation import evaluation
 import sys
 import os
 import time
+from textualui import TextualUI
 
 sms = SMS()
 workerFile = '../Data/workerList.txt'
@@ -115,7 +116,8 @@ def AttributeSentenceToWorker(sentenceId,workerId):
     
     #Make sure Worker do not received same sentence twice
     IdSentDone_Dict[workerId].append(sentenceId)
-    print "Attributed: " + str(sentenceId) + " to " + IdName_Dict[workerId]
+    #print "Attributed: " + str(sentenceId) + " to " + IdName_Dict[workerId]
+    TextualUI.ShowOutgoingMessage(IdPhone_Dict[workerId], IdName_Dict[workerId], IdSentence_Dict[sentenceId])
 
 
 #Change the state of a worker so it will received new data
@@ -123,7 +125,8 @@ def AcknowledgeSentenceTagged(workerId, isOk):
     del PendingWork_Dict[workerId]
     IdStatus_Dict[workerId] = 'Idle'
     if(isOk):
-        print 'Sentence Successfully tagged'
+        pass
+        #print 'Sentence Successfully tagged'
 
 
 def SendWorkUnits(workCount):
@@ -137,7 +140,7 @@ def SendWorkUnits(workCount):
         #Give work to this worker...
         sentenceId = GetNewSentenceToTag(workerId)
         if(sentenceId == -1):
-            print 'No idle sentence'
+            #print 'No idle sentence'
             break
         
         #Try Sending SMS to worker
@@ -166,19 +169,29 @@ def ProcessReceivedMessages(workUnitToProcess):
         if workerId not in PendingWork_Dict:
             print "Error: Received answer from Worker not active"
             continue
-        
-        print "Received " + msg.get_body() + " from " + IdName_Dict[workerId]
+
+        worker_name=IdName_Dict[workerId]
+
+
+        TextualUI.ShowIncomingMessage(msg,worker_name)
+        #print "Received " + msg.get_body() + " from " + IdName_Dict[workerId]
 
         originalSentId = PendingWork_Dict[workerId]
+        original_sentence=IdSentence_Dict[originalSentId]
         
-        if(evaluation( IdSentence_Dict[originalSentId], msgBody) ):
+        if(evaluation( original_sentence, msgBody) ):
             AcknowledgeSentenceTagged(workerId,True)
+
+            TextualUI.ShowProcessedResult(msg, worker_name, original_sentence, True)
             #Push Results to DataBase
             #Free Worker for further work
         else:
             AcknowledgeSentenceTagged(workerId,False)
-            print 'Worker did not tagged the sentence properly'
-            print  IdSentence_Dict[originalSentId] + " -> " + msgBody
+            TextualUI.ShowProcessedResult(msg, worker_name, original_sentence, False)
+
+
+            #print 'Worker did not tagged the sentence properly'
+            #print  IdSentence_Dict[originalSentId] + " -> " + msgBody
             
 
 
@@ -187,6 +200,8 @@ def ProcessReceivedMessages(workUnitToProcess):
 #How many SMS we want to send each time...
 workUnitsToCreate = 2
 workUnitsToProcess = 2
+
+TextualUI.StartUI()
 
 while(True):
     time.sleep(1)
