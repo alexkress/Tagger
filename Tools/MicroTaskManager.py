@@ -216,8 +216,7 @@ def ProcessReceivedMessages(workUnitToProcess, quiet=False):
             #print  IdSentence_Dict[originalSentId] + " -> " + msgBody
             
 
-S = Stats()
-St.format(sentenceFile, sentenceFile) 
+ 
 
 #data per word is held in S.data 
 
@@ -236,6 +235,9 @@ if __name__=="__main__":
         parser.error("incorrect number of arguments")
         
     fake_message_sending = (False if options.send=="Yes" else True)
+
+    S = Stats()
+    S.format(sentenceFile, sentenceFile)
 
     #How many SMS we want to send each time...
     workUnitsToCreate = 2
