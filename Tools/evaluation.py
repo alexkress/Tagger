@@ -65,7 +65,6 @@ class Stats(object):
         self.data = np.zeros(count, dtype=self.dtype)
         a = csv.reader(open('%s'%filename, 'rb'), delimiter=';')
         i = 0
-        print(sentences)
         for line in a:
             for k, p in enumerate(eval(line[2])):
                 self.data[i]['SentenceID'] = line[0]
