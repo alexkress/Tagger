@@ -186,23 +186,23 @@ def ProcessReceivedMessages(workUnitToProcess, quiet=False):
         original_sentence=IdSentence_Dict[originalSentId]
 
         
-        if(evaluation( original_sentence, msgBody) ):
-            AcknowledgeSentenceTagged(workerId,True)
-
-            if not quiet:
-                TextualUI.ShowProcessedResult(msg, worker_name, original_sentence, True)
-            #Push Results to DataBase
-            #Free Worker for further work
-        
-        #Ev = Evaluator()
-        #if(Ev.evaluation( original_sentence, msgBody) ):
+        #if(evaluation( original_sentence, msgBody) ):
         #    AcknowledgeSentenceTagged(workerId,True)
 
         #    if not quiet:
         #        TextualUI.ShowProcessedResult(msg, worker_name, original_sentence, True)
+            #Push Results to DataBase
+            #Free Worker for further work
+        
+        Ev = Evaluator()
+        if(Ev.evaluation( original_sentence, msgBody) ):
+            AcknowledgeSentenceTagged(workerId,True)
+
+            if not quiet:
+                TextualUI.ShowProcessedResult(msg, worker_name, original_sentence, True)
 
             #Push Results to DataBase
-        #    Ev.push(responseFile, originalSentId, workerId)
+            Ev.push(responseFile, originalSentId, workerId)
             
             #Free Worker for further work
         
