@@ -7,14 +7,16 @@ __date__ ="$Dec 3, 2011 12:04:18 PM$"
 from twilio.rest import TwilioRestClient
 
 from Tools.sms import SMS
+from Tools.textualui import TextualUI
 
 sms=SMS()
-#print sms.send("hello", "")
+#print sms.send("hello", "+14165431525")
 
 msgs=sms.receive()
 
 for msg in msgs:
-    print "Received "+msg.get_body()+" from "+msg.get_source()
+    #print "Received "+msg.get_body()+" from "+msg.get_source()
+    TextualUI.ShowIncomingMessage(msg)
 
 if __name__ == "__main1__":
     account = "ACf3a4c18fb6b24d01a99aa2770c187900"

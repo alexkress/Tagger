@@ -216,8 +216,6 @@ def ProcessReceivedMessages(workUnitToProcess, quiet=False):
             #print  IdSentence_Dict[originalSentId] + " -> " + msgBody
             
 
- 
-
 #data per word is held in S.data 
 
 ### Main Loop ###
