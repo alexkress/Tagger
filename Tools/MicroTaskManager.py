@@ -165,12 +165,12 @@ def ProcessReceivedMessages(workUnitToProcess, quiet=False):
         workerId = GetWorkerFromPhone(sourcePhone)
         if(workerId == -1):
             if not quiet:
-                print 'Unknown phone source... ' + sourcePhone
+                TextualUI.ShowErrorMessage('Unknown phone source... ' + sourcePhone)
             continue
         
         if workerId not in PendingWork_Dict:
             if not quiet:
-                print "Error: Received answer from Worker not active"
+                TextualUI.ShowErrorMessage("Error: Received answer from Worker not active")
             continue
 
         worker_name=IdName_Dict[workerId]
@@ -226,7 +226,7 @@ workUnitsToProcess = 2
 
 TextualUI.StartUI()
 
-ProcessReceivedMessages(10000, True)
+#ProcessReceivedMessages(10000, True)
 
 while(True):
     time.sleep(1)
