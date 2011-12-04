@@ -20,5 +20,5 @@ the system will be sending out sms, without the parameter the system will ran in
 it will be able to receive responses and simulate sending
 
 Other files:
-used_messages.saved.db contains a list of sms already read by the application
+used_messages.saved.db contains a list of sms already read by the application. This file was required because we did not find a good way to clear read messages.
 responseList.txt collect the responses received by the application, can be used to construct the corpora
