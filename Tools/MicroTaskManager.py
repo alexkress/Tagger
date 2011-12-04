@@ -8,7 +8,9 @@ sms = SMS()
 workerFile = '../Data/workerList.txt'
 sentenceFile = '../Data/sentenceList.txt'
 
-
+#Information used for the demo stored in dictionnaries
+#Once we have a database, all this informaton will be obtained/stored
+#via DB interface...
 IdName_Dict = dict()
 IdPhone_Dict = dict()
 IdStatus_Dict = dict()
@@ -39,7 +41,7 @@ for line in lines:
     IdStatus_Dict[workerId] = 'Idle' 
     IdSentDone_Dict[workerId] = list() 
 
-    print workerName
+    #print workerName
 
 
 # Read a list of sentence from a file
@@ -68,13 +70,8 @@ for line in lines:
     IdSentence_Dict[sentenceId] = sentenceText
     IdSentCount_Dict[sentenceId] = 0
 
-    print sentenceText
+    #print sentenceText
 
-def ReceiveSMS():
-    return [1,2,3];
-
-def SendSMS(phoneNumber, TextSentence):
-    return True;
 
 def find_key(dic, val):
     for k,v in dic.iteritems():
@@ -82,20 +79,17 @@ def find_key(dic, val):
             return k
     return -1;
 
-#Retrieve Idle Worker
+#Retrieve workerId given it's phone number (-1 if not found)
 def GetWorkerFromPhone(phoneNmb):
-    idleWorkerId = -1
-    idleWorkerId = find_key(IdPhone_Dict, phoneNmb);
- 
-    return idleWorkerId
+    return find_key(IdPhone_Dict, phoneNmb); 
 
-#Retrieve Idle Worker
+#Retrieve Idle Worker (-1 if not found)
 def GetIdleWorker():
-    idleWorkerId = -1
-    idleWorkerId = find_key(IdStatus_Dict, 'Idle');
-    return idleWorkerId
+    return find_key(IdStatus_Dict, 'Idle');
 
-#Get the Id of a sentence not tagged by the worker.
+
+#Get the Id of a sentence that need to be tagged, but has
+# not already been tagged by the specified worker.
 # If none is found, return -1
 def GetNewSentenceToTag(workerId):
     for k, v in IdSentence_Dict.iteritems():
@@ -112,40 +106,55 @@ PendingWork_Dict = dict()
 def AttributeSentenceToWorker(sentenceId,workerId):
     #Specify the current sentence a worker is working on
     PendingWork_Dict[workerId] = sentenceId
-    #Set the status of worker as occupied
+    
+    #Set the status of worker as occupied    
     IdStatus_Dict[workerId] = 'Working'
+    
     #Count number of time each sentence was sent to a worker
     IdSentCount_Dict[sentenceId] += 1
+    
     #Make sure Worker do not received same sentence twice
     IdSentDone_Dict[workerId].append(sentenceId)
     print "Attributed: " + str(sentenceId) + " to " + IdName_Dict[workerId]
 
+
+#Change the state of a worker so it will received new data
 def AcknowledgeSentenceTagged(workerId, isOk):
     del PendingWork_Dict[workerId]
     IdStatus_Dict[workerId] = 'Idle'
     if(isOk):
         print 'Sentence Successfully tagged'
 
-while(True):
-    time.sleep(1)
-    # Attribute Sentence to Tag to Idle Workers
-    workerId = GetIdleWorker()
-    if(workerId != -1):
+
+def SendWorkUnits(workCount):
+    if workCount < 1:
+        return
+    for x in range(workCount):
+        workerId = GetIdleWorker()
+        if(workerId == -1):
+            #print 'No Idle Worker'
+            break
         #Give work to this worker...
         sentenceId = GetNewSentenceToTag(workerId)
-        if(sentenceId != -1):
-            if(sms.send(IdSentence_Dict[sentenceId], IdPhone_Dict[workerId]) ):
-                #Successfully Send SMS, Add Sentece/Worker to waiting queue.
-                AttributeSentenceToWorker(sentenceId,workerId)
-            else:
-                print 'Unable to send Msg to: ' + IdName_Dict[workerId]
-    # Get Received SMS and attribute if correctly answered
-    receivedMsg = sms.receive(1)
+        if(sentenceId == -1):
+            print 'No idle sentence'
+            break
+        
+        #Try Sending SMS to worker
+        if(True): #sms.send(IdSentence_Dict[sentenceId], IdPhone_Dict[workerId]) ):
+            #Successfully Send SMS, Add Sentece/Worker to waiting queue.
+            AttributeSentenceToWorker(sentenceId,workerId)
+        else:
+            print 'Unable to send Msg to: ' + IdName_Dict[workerId]        
+            
+
+def ProcessReceivedMessages(workUnitToProcess):
+    #Contact Server to receive SMS
+    receivedMsg = sms.receive(workUnitToProcess)
     
     for msg in receivedMsg:
         sourcePhone = msg.get_source().strip()
         msgBody = msg.get_body().strip()
-        print "Received " + msg.get_body() + " from " + msg.get_source()
         
         #Check which person has send this message...
         workerId = GetWorkerFromPhone(sourcePhone)
@@ -154,8 +163,10 @@ while(True):
             continue
         
         if workerId not in PendingWork_Dict:
-            print "Worker not assigned any Data"
+            print "Error: Received answer from Worker not active"
             continue
+        
+        print "Received " + msg.get_body() + " from " + IdName_Dict[workerId]
 
         originalSentId = PendingWork_Dict[workerId]
         
@@ -169,7 +180,20 @@ while(True):
             print  IdSentence_Dict[originalSentId] + " -> " + msgBody
             
 
-    #for msg in receivedMsg:
-    #    print msg
+
+### Main Loop ###
+
+#How many SMS we want to send each time...
+workUnitsToCreate = 2
+workUnitsToProcess = 2
+
+while(True):
+    time.sleep(1)
+    # Attribute Sentence to Tag to Idle Workers
+    SendWorkUnits(workUnitsToCreate)
+    
+    # Get Received SMS and attribute if correctly answered
+    ProcessReceivedMessages(workUnitsToProcess)
+
 
 
